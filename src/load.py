@@ -9,67 +9,60 @@ file_names = []
 file_paths = []
 categories = []
 file_extension = '.wav'
+max_duration = 30
 
-
-# Get the audio directory path
-#audio_path = os.path.dirname(os.path.realpath(__file__)) + '/../data/'
+# Get the audio directory path, place yours here
 audio_path = os.path.dirname("/Volumes/Seagate Backup Plus Drive/uniiii/UrbanSound/data/")
-max_files = -1
-max_files -= 1
 
 # # Get the names and paths of all .file_extension files in the audio folder
-counter = 0
 for root, sub_dirs, files in os.walk(audio_path):
     for file in files:
-        if(file.endswith(file_extension)):
-            # if(max_files < 0 and counter > max_files):
-            #     break
+        if (file.endswith(file_extension)):
 
             file_names.append(file)
             file_paths.append(os.path.join(root, file))
 
             category = root.split('/')[-1]
 
-            if category != 'data' and category not in categories:
+            if (category != 'data' and category not in categories):
                 categories.append(category)
-
-            counter += 1
-
-# Load them with equal loudness
-loaded_files = []
-for path in file_paths:
-    # Using audio loader of choice http://essentia.upf.edu/documentation/algorithms_overview.html#audio-input-output
-    loader = EqloudLoader(filename = path)
-    loaded_files.append(loader())
-
-dataPools = []
-data_pools_aggregated = []
-extractor = Extractor()
-
-# Extract a bunch of audio features http://essentia.upf.edu/documentation/reference/std_Extractor.html
-print("\nAnalysing {} audio files...\n".format(len(file_names)))
-
-stats = ["min", "max", "median", "mean", "cov", "kurt", "skew"]
-
-for file in loaded_files:
-    current_extractor = extractor(file)
-
-    # Statistical Aggregation http://essentia.upf.edu/documentation/reference/std_PoolAggregator.html
-    data_pools_aggregated.append(PoolAggregator(defaultStats = stats)(current_extractor))
 
 # Create result directories if necessary
 result_root = os.path.dirname(os.path.realpath(__file__)) + '/../extracted/'
 result_directories = [os.path.join(result_root, category) for category in categories]
 
-try:
-    for path in result_directories:
+for path in result_directories:
+    try:
         os.makedirs(path)
-except OSError as exception:
-    if exception.errno != errno.EEXIST:
-        raise
+    except OSError as exception:
+        if (exception.errno != errno.EEXIST):
+            raise
+
 
 result_paths = map(lambda path: path.replace(file_extension, '') + '.json', file_paths)
 result_paths = map(lambda path: path.split('/data')[1], result_paths)
 
-for index, aggregated_pool in enumerate(data_pools_aggregated):
-    YamlOutput(filename = result_root + result_paths[index], format = 'json')(aggregated_pool)
+print("\nAnalysing {} audio files shorter than 30s... Skipping longer than {}s.\n".format(len(file_names), max_duration))
+
+# Extract a bunch of audio features http://essentia.upf.edu/documentation/reference/std_Extractor.html
+extractor = Extractor()
+stats = ["min", "max", "median", "mean", "var", "cov", "kurt", "skew"]
+
+numFiles = len(file_paths)
+for index, path in enumerate(file_paths):
+    # Load audio http://essentia.upf.edu/documentation/algorithms_overview.html#audio-input-output
+    audio = EqloudLoader(filename = path)()
+    duration = Duration()(audio)
+
+    # Ignore long files
+    if (duration < max_duration):
+        print("{0}, duration: {1:.2f}s, {2} files left".format(path.split('/data')[1], duration, numFiles - index))
+        current_extractor = extractor(audio)
+
+        try:
+            # Statistical Aggregation http://essentia.upf.edu/documentation/reference/std_PoolAggregator.html
+            aggregated_pool = PoolAggregator(defaultStats = stats)(current_extractor)
+            YamlOutput(filename = result_root + result_paths[index], format = 'json')(aggregated_pool)
+        except Exception as e:
+            print('\033[93m' + "Supressed error during statistical aggregation:", e)
+            pass
