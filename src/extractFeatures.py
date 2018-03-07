@@ -28,7 +28,7 @@ for root, sub_dirs, files in os.walk(audio_path):
                 categories.append(category)
 
 # Create result directories if necessary
-result_root = os.path.dirname(os.path.realpath(__file__)) + '/../extracted/'
+result_root = os.path.dirname(os.path.realpath(__file__)) + '/../extracteFeatures/'
 result_directories = [os.path.join(result_root, category) for category in categories]
 
 for path in result_directories:
