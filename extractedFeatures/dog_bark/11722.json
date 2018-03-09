@@ -404,11 +404,11 @@
     "oddtoevenharmonicenergyratio": {
         "kurt": 0,
         "max": 3.40282346639e+38,
-        "mean": inf,
+        "mean": 0,
         "median": 0.00822734832764,
         "min": 0,
         "skew": 0,
-        "var": inf
+        "var": 0
     },
     "pitch_after_max_to_before_max_energy_ratio": 0.62222468853,
     "pitch_centroid": 56.6892280579,

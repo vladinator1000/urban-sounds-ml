@@ -408,7 +408,7 @@
         "median": 0.0853513628244,
         "min": 0,
         "skew": 0,
-        "var": inf
+        "var": 0
     },
     "pitch_after_max_to_before_max_energy_ratio": 0.901766300201,
     "pitch_centroid": 383.382751465,

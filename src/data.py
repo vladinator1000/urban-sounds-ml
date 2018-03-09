@@ -1,4 +1,4 @@
-import os, json
+import os, json, errno
 import pandas as pd
 from pprint import pprint
 
@@ -51,15 +51,13 @@ count = 0
 #  'pitch_after_max_to_before_max_energy_ratio',
 #  'oddtoevenharmonicenergyratio']
 
-
-# Simpler this way. Will deal with other higher dimension keys in dissertation
-
+count = 0
 rows = []
 
 for root, sub_dirs, files in os.walk(data_path):
     for file in files:
         if (file.endswith('.json')):
-            if count < 3:
+            if count < 3000:
                 file_names.append(file)
 
                 path = os.path.join(root, file)
@@ -71,7 +69,11 @@ for root, sub_dirs, files in os.walk(data_path):
                     sound_categories.append(category)
 
                 with open(path) as opened_file:
-                    dict_json = json.load(opened_file)
+                    try:
+                        dict_json = json.load(opened_file)
+
+                    except Exception as err:
+                        print(path, err)
 
                     # Remove (currently) unusable keys
                     for key in ['tonal', 'rhythm', 'metadata', 'barkbands', 'sccoeffs', 'scvalleys', 'mfcc']:
@@ -82,12 +84,20 @@ for root, sub_dirs, files in os.walk(data_path):
 
                     del dict_json['sfx']['tristimulus']
 
-                    # normalized = json_normalize(dict_json)
-                    # normalized['category'] = category
+                    # Encode label as number
+                    dict_json['category'] = sound_categories.index(category)
                     
-                    # print(normalized)
                     rows.append(dict_json)
-
             count += 1
 
 data = pd.io.json.json_normalize(rows)
+# data = data.set_index('category')
+
+# Prepare a folder for plots
+plot_path = os.path.dirname(os.path.realpath(__file__)) + '/../plots/'
+
+try:
+    os.makedirs(plot_path)
+except OSError as exception:
+    if exception.errno != errno.EEXIST:
+        raise
