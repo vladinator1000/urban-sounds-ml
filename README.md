@@ -11,6 +11,9 @@
 ## Plots
 ![t-SNE](https://media.giphy.com/media/XoyZ0yZA9KpvdBNYoO/giphy.gif)
 
+### t-SNE HD video
+[![t-SNE higher quality video](https://img.youtube.com/vi/1hJU5p46lAU/0.jpg)](https://www.youtube.com/watch?v=1hJU5p46lAU)
+
 ### Principe Component Analysis
 ![PCA](plots/principle_component_analysis.png)
 

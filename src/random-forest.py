@@ -9,7 +9,7 @@ import operator
 from data import data, sound_categories, plot_path
 
 model = RandomForestClassifier()
-KFold = StratifiedKFold(n_splits = 6, shuffle = True)
+KFold = StratifiedKFold(n_splits=6, shuffle=True)
 
 # Features without category
 features = data.columns[1:]
