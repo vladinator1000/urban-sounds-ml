@@ -64,8 +64,6 @@ for train_indices, test_indices in KFold.split(data, data['category'].tolist()):
 
     split_number += 1
 
-# f3, ax3 = plt.subplots(1, 1)
-
 print('\nSummary after k-fold validation:')
 print('Training Scores: {}'.format(stats.describe(train_scores)))
 print('Testing Scores: {}'.format(stats.describe(test_scores)))
